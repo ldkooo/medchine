@@ -31,7 +31,7 @@ export default function HomePage() {
     } else {
       setProducts(data || []);
       // 提取分类
-      const cats = ["全部", ...new Set((data || []).map((p) => p.category))];
+      const cats = ["全部", ...Array.from(new Set((data || []).map((p) => p.category)))];
       setCategories(cats);
     }
     setLoading(false);
