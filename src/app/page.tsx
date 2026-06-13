@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Product, CartItem } from "@/types";
 
-const CATEGORY_LIST = ["全部", "饮料", "零食", "方便食品", "日用品", "冰激凌"];
+const CATEGORY_LIST = ["全部", "饮料", "零食", "冰激凌", "方便食品"];
 
 const CATEGORY_ICONS: Record<string, string> = {
   饮料: "🥤",
   零食: "🍿",
-  方便食品: "🍜",
-  日用品: "🧻",
   冰激凌: "🍦",
+  方便食品: "🍜",
 };
 
 export default function HomePage() {
