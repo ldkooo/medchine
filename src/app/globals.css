@@ -2,22 +2,123 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
-}
-
 @layer base {
+  html {
+    @apply bg-[#0f172a] text-white;
+  }
+
+  body {
+    @apply bg-[#0f172a] text-white min-h-screen antialiased;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  }
+
   input, select, textarea {
-    @apply border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500;
+    @apply bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all;
   }
-  button {
-    @apply cursor-pointer;
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
+  }
+
+  .glass-card-hover {
+    @apply glass-card hover:bg-white/10 hover:border-white/20 transition-all duration-300;
+  }
+
+  .glass-button {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2 text-white/90 hover:bg-white/20 hover:border-white/30 transition-all duration-200;
+  }
+
+  .glass-button-primary {
+    @apply bg-blue-500/80 backdrop-blur-md border border-blue-400/30 rounded-xl px-4 py-2 text-white hover:bg-blue-500 hover:border-blue-400/50 transition-all duration-200 shadow-lg shadow-blue-500/20;
+  }
+
+  .glass-button-success {
+    @apply bg-emerald-500/80 backdrop-blur-md border border-emerald-400/30 rounded-xl px-4 py-2 text-white hover:bg-emerald-500 hover:border-emerald-400/50 transition-all duration-200 shadow-lg shadow-emerald-500/20;
+  }
+
+  .glass-button-danger {
+    @apply bg-red-500/80 backdrop-blur-md border border-red-400/30 rounded-xl px-4 py-2 text-white hover:bg-red-500 hover:border-red-400/50 transition-all duration-200 shadow-lg shadow-red-500/20;
+  }
+
+  .glass-nav {
+    @apply bg-white/5 backdrop-blur-2xl border-b border-white/10;
+  }
+
+  .glass-input {
+    @apply bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all w-full;
+  }
+
+  .glass-badge {
+    @apply bg-white/10 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 text-xs text-white/70;
+  }
+
+  .glass-table {
+    @apply w-full;
+  }
+
+  .glass-table th {
+    @apply text-left text-white/50 text-sm font-medium px-4 py-3 bg-white/5 backdrop-blur-md;
+  }
+
+  .glass-table td {
+    @apply px-4 py-3 border-t border-white/5 text-white/80;
+  }
+
+  .glass-table tr:hover td {
+    @apply bg-white/5;
+  }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }

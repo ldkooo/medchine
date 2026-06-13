@@ -4,6 +4,22 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Product, CartItem } from "@/types";
 
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  饮料: "from-blue-500/20 to-cyan-500/20",
+  零食: "from-orange-500/20 to-red-500/20",
+  方便食品: "from-yellow-500/20 to-orange-500/20",
+  日用品: "from-emerald-500/20 to-teal-500/20",
+  冰激凌: "from-pink-500/20 to-purple-500/20",
+};
+
+const CATEGORY_ICONS: Record<string, string> = {
+  饮料: "🥤",
+  零食: "🍿",
+  方便食品: "🍜",
+  日用品: "🧻",
+  冰激凌: "🍦",
+};
+
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -30,7 +46,6 @@ export default function HomePage() {
       console.error("加载商品失败:", error);
     } else {
       setProducts(data || []);
-      // 提取分类
       const cats = ["全部", ...Array.from(new Set((data || []).map((p) => p.category)))];
       setCategories(cats);
     }
@@ -39,7 +54,6 @@ export default function HomePage() {
 
   const addToCart = (product: Product) => {
     if (product.stock <= 0) return;
-
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
@@ -77,20 +91,12 @@ export default function HomePage() {
 
   const handlePayment = async () => {
     if (cart.length === 0) return;
-
-    // 模拟支付过程
     setShowPayment(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // 扣减库存并记录销售
     for (const item of cart) {
       const newStock = item.product.stock - item.quantity;
-      await supabase
-        .from("products")
-        .update({ stock: newStock })
-        .eq("id", item.product.id);
-
-      // 记录销售
+      await supabase.from("products").update({ stock: newStock }).eq("id", item.product.id);
       await supabase.from("sales").insert({
         product_id: item.product.id,
         product_name: item.product.name,
@@ -102,7 +108,6 @@ export default function HomePage() {
 
     setPaymentSuccess(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
-
     setCart([]);
     setShowPayment(false);
     setPaymentSuccess(false);
@@ -117,79 +122,121 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-gray-600">加载中...</div>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-blue-400 rounded-full animate-spin" />
+          <p className="text-white/50">正在加载商品...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in">
+      {/* 欢迎语 */}
+      <div className="text-center py-4">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          欢迎选购
+        </h2>
+        <p className="text-white/40 mt-2">选择你喜欢的商品，加入购物车即可购买</p>
+      </div>
+
       {/* 分类筛选 */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 justify-center">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 border ${
               selectedCategory === cat
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 border hover:bg-gray-100"
+                ? "bg-white/15 border-white/30 text-white shadow-lg shadow-white/5"
+                : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:border-white/20 hover:text-white/70"
             }`}
           >
+            {cat !== "全部" && (
+              <span className="mr-1.5">{CATEGORY_ICONS[cat] || "📦"}</span>
+            )}
             {cat}
           </button>
         ))}
       </div>
 
       {/* 商品网格 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow overflow-hidden"
-          >
-            <div className="h-40 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center text-6xl">
-              {product.image || "📦"}
-            </div>
-            <div className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-lg">{product.name}</h3>
-                <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                  {product.category}
+      {filteredProducts.length === 0 ? (
+        <div className="text-center py-20">
+          <div className="text-6xl mb-4 opacity-30">🛒</div>
+          <p className="text-white/40 text-lg">暂无商品</p>
+          <p className="text-white/20 text-sm mt-1">请联系管理员添加商品</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {filteredProducts.map((product, index) => (
+            <div
+              key={product.id}
+              className="glass-card-hover group animate-slide-up"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              {/* 商品图片区域 */}
+              <div className={`h-44 rounded-t-2xl bg-gradient-to-br ${CATEGORY_GRADIENTS[product.category] || "from-white/10 to-white/5"} flex items-center justify-center relative overflow-hidden`}>
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiLz48L3N2Zz4=')] opacity-50" />
+                <span className="text-7xl group-hover:scale-110 transition-transform duration-300 drop-shadow-2xl">
+                  {product.image || CATEGORY_ICONS[product.category] || "📦"}
                 </span>
+                {product.stock < 10 && product.stock > 0 && (
+                  <div className="absolute top-3 right-3 bg-orange-500/90 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full">
+                    仅剩 {product.stock} 件
+                  </div>
+                )}
+                {product.stock === 0 && (
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                    <span className="bg-red-500/90 text-white px-4 py-2 rounded-full text-sm font-medium">已售罄</span>
+                  </div>
+                )}
               </div>
-              <p className="text-2xl font-bold text-blue-600 mb-2">
-                ¥{product.price.toFixed(2)}
-              </p>
-              <div className="flex items-center justify-between">
-                <span
-                  className={`text-sm ${
-                    product.stock > 0 ? "text-green-600" : "text-red-500"
-                  }`}
-                >
-                  {product.stock > 0 ? `库存: ${product.stock}` : "缺货"}
-                </span>
-                <button
-                  onClick={() => addToCart(product)}
-                  disabled={product.stock <= 0}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  加入购物车
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* 购物车按钮 */}
-      <div className="fixed bottom-6 right-6">
+              <div className="p-5">
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="font-semibold text-lg text-white/90">{product.name}</h3>
+                  <span className="glass-badge">{product.category}</span>
+                </div>
+
+                <div className="flex items-baseline gap-1 mb-4">
+                  <span className="text-sm text-white/40">¥</span>
+                  <span className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    {product.price.toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-red-400'}`} />
+                    <span className={`text-sm ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {product.stock > 0 ? `库存 ${product.stock}` : "缺货"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => addToCart(product)}
+                    disabled={product.stock <= 0}
+                    className="glass-button-primary disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
+                  >
+                    <span>🛒</span>
+                    加入购物车
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 悬浮购物车按钮 */}
+      <div className="fixed bottom-6 right-6 z-40">
         <button
           onClick={() => setShowCart(!showCart)}
-          className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors relative"
+          className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 animate-pulse-glow"
         >
-          🛒 {cart.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center">
+          <span className="text-xl">🛒</span>
+          {cart.length > 0 && (
+            <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg">
               {cart.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
           )}
@@ -198,74 +245,84 @@ export default function HomePage() {
 
       {/* 购物车弹窗 */}
       {showCart && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">购物车</h2>
-              <button
-                onClick={() => setShowCart(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <div className="glass-card w-full max-w-md max-h-[80vh] overflow-auto m-4 animate-slide-up">
+            <div className="p-6 border-b border-white/10">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <span>🛒</span>
+                  购物车
+                </h2>
+                <button
+                  onClick={() => setShowCart(false)}
+                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             {cart.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">购物车是空的</p>
+              <div className="text-center py-16 text-white/30">
+                <div className="text-5xl mb-4">🛒</div>
+                <p>购物车是空的</p>
+                <p className="text-sm mt-1">快去选购商品吧</p>
+              </div>
             ) : (
               <>
-                <div className="space-y-3 mb-4">
+                <div className="p-6 space-y-3">
                   {cart.map((item) => (
                     <div
                       key={item.product.id}
-                      className="flex items-center justify-between border-b pb-3"
+                      className="flex items-center gap-3 p-3 rounded-xl bg-white/5"
                     >
-                      <div>
-                        <p className="font-medium">{item.product.name}</p>
-                        <p className="text-sm text-gray-500">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl flex-shrink-0">
+                        {item.product.image || CATEGORY_ICONS[item.product.category] || "📦"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-white/90 truncate">{item.product.name}</p>
+                        <p className="text-sm text-white/40">
                           ¥{item.product.price.toFixed(2)} × {item.quantity}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <button
-                          onClick={() =>
-                            updateQuantity(item.product.id, item.quantity - 1)
-                          }
-                          className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200"
+                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                          className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
                         >
-                          -
+                          −
                         </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
+                        <span className="w-8 text-center font-medium">{item.quantity}</span>
                         <button
-                          onClick={() =>
-                            updateQuantity(item.product.id, item.quantity + 1)
-                          }
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                           disabled={item.quantity >= item.product.stock}
-                          className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                          className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30"
                         >
                           +
                         </button>
                         <button
                           onClick={() => removeFromCart(item.product.id)}
-                          className="text-red-500 ml-2"
+                          className="ml-2 w-7 h-7 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 flex items-center justify-center transition-colors"
                         >
-                          🗑️
+                          🗑
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="border-t pt-4">
-                  <div className="flex justify-between text-lg font-bold mb-4">
-                    <span>总计:</span>
-                    <span>¥{totalAmount.toFixed(2)}</span>
+                <div className="p-6 border-t border-white/10">
+                  <div className="flex justify-between items-center mb-5">
+                    <span className="text-white/50">总计</span>
+                    <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      ¥{totalAmount.toFixed(2)}
+                    </span>
                   </div>
                   <button
                     onClick={handlePayment}
-                    className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                    className="w-full glass-button-success py-3 text-base font-medium"
                   >
-                    立即支付
+                    💳 立即支付
                   </button>
                 </div>
               </>
@@ -276,19 +333,23 @@ export default function HomePage() {
 
       {/* 支付弹窗 */}
       {showPayment && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-8 text-center">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <div className="glass-card p-10 text-center animate-slide-up">
             {paymentSuccess ? (
               <div>
-                <div className="text-6xl mb-4">✅</div>
-                <h2 className="text-xl font-bold text-green-600">支付成功!</h2>
-                <p className="text-gray-500 mt-2">感谢您的购买</p>
+                <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">✅</span>
+                </div>
+                <h2 className="text-2xl font-bold text-emerald-400">支付成功!</h2>
+                <p className="text-white/40 mt-2">感谢您的购买</p>
               </div>
             ) : (
               <div>
-                <div className="text-6xl mb-4">💳</div>
-                <h2 className="text-xl font-bold mb-2">正在支付...</h2>
-                <p className="text-gray-500">请稍候</p>
+                <div className="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4 animate-pulse">
+                  <span className="text-4xl">💳</span>
+                </div>
+                <h2 className="text-xl font-bold">正在处理支付...</h2>
+                <p className="text-white/40 mt-2">请稍候</p>
               </div>
             )}
           </div>
