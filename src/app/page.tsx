@@ -29,14 +29,19 @@ export default function HomePage() {
 
   const loadProducts = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("status", "active")
-      .order("created_at", { ascending: false });
-
-    if (error) console.error("加载商品失败:", error);
-    else setProducts(data || []);
+    try {
+      const res = await fetch('/api/products');
+      const data = await res.json();
+      if (data.products) {
+        setProducts(data.products);
+      } else {
+        console.error('加载商品失败:', data.error);
+        setProducts([]);
+      }
+    } catch (err) {
+      console.error('请求失败:', err);
+      setProducts([]);
+    }
     setLoading(false);
   };
 
