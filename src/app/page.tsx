@@ -94,7 +94,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-red-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-purple-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -128,22 +128,22 @@ export default function HomePage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {filteredProducts.map((product) => (
             <div key={product.id} className="card-white overflow-hidden">
-              <div className="h-32 bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center text-5xl relative">
+              <div className="h-32 bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center text-5xl relative">
                 {product.image || CATEGORY_ICONS[product.category] || "📦"}
                 {product.stock <= 0 && (
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs">已售罄</span>
+                    <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs">已售罄</span>
                   </div>
                 )}
               </div>
               <div className="p-3">
                 <h3 className="font-medium text-sm text-gray-900 truncate">{product.name}</h3>
                 <div className="flex items-center justify-between mt-2">
-                  <span className="text-red-600 font-bold">¥{product.price.toFixed(2)}</span>
+                  <span className="text-purple-600 font-bold">¥{product.price.toFixed(2)}</span>
                   <button
                     onClick={() => addToCart(product)}
                     disabled={product.stock <= 0}
-                    className="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm hover:bg-red-700 disabled:bg-gray-300"
+                    className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm hover:bg-purple-700 disabled:bg-gray-300"
                   >
                     ＋
                   </button>
@@ -160,10 +160,10 @@ export default function HomePage() {
         <div className="fixed bottom-20 right-4 z-40">
           <button
             onClick={() => setShowCart(true)}
-            className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center text-white shadow-lg relative"
+            className="w-14 h-14 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg relative"
           >
             <span className="text-xl">🛒</span>
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 text-white text-xs rounded-full flex items-center justify-center">
               {cart.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
           </button>
@@ -197,9 +197,9 @@ export default function HomePage() {
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-600">合计</span>
-                <span className="text-xl font-bold text-red-600">¥{totalAmount.toFixed(2)}</span>
+                <span className="text-xl font-bold text-purple-600">¥{totalAmount.toFixed(2)}</span>
               </div>
-              <button onClick={handlePayment} className="w-full btn-red py-3">立即支付</button>
+              <button onClick={handlePayment} className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700">立即支付</button>
             </div>
           </div>
         </div>
