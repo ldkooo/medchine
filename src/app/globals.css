@@ -4,20 +4,22 @@
 
 @layer base {
   html {
-    @apply bg-gray-50 text-gray-900;
+    @apply text-gray-900;
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 min-h-screen antialiased;
+    @apply min-h-screen antialiased;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-attachment: fixed;
   }
 
   input, select, textarea {
-    @apply border border-gray-200 rounded-lg px-3 py-2 text-gray-900 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all;
+    @apply border border-gray-200 rounded-lg px-3 py-2 text-gray-900 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all;
   }
 }
 
 @layer components {
-  .btn-red {
+  .btn-primary {
     @apply bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 active:bg-purple-800 transition-colors font-medium;
   }
 
@@ -26,27 +28,27 @@
   }
 
   .card-white {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100;
+    @apply bg-white rounded-xl shadow-lg shadow-purple-500/10 border border-white/50;
+  }
+
+  .card-white-hover {
+    @apply card-white hover:shadow-xl hover:shadow-purple-500/20 hover:-translate-y-0.5 transition-all duration-300;
   }
 
   .nav-bottom {
-    @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50;
+    @apply fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 z-50;
   }
 
-  .nav-item-active {
-    @apply text-red-600;
+  .tag-active {
+    @apply bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium;
   }
 
-  .nav-item-inactive {
-    @apply text-gray-400;
+  .tag-inactive {
+    @apply bg-white/80 text-gray-600 px-3 py-1 rounded-full text-sm backdrop-blur-sm;
   }
 
-  .tag-red {
-    @apply bg-purple-600 text-white px-3 py-1 rounded-full text-sm;
-  }
-
-  .tag-outline {
-    @apply bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm;
+  .gradient-text {
+    @apply bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent;
   }
 }
 
@@ -61,6 +63,6 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
 }

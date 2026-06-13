@@ -94,21 +94,29 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* 欢迎语 */}
+      <div className="text-center py-4">
+        <h2 className="text-3xl font-bold text-white drop-shadow-lg">
+          欢迎选购
+        </h2>
+        <p className="text-white/70 mt-2">选择你喜欢的商品，加入购物车即可购买</p>
+      </div>
+
       {/* 分类标签 */}
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {CATEGORY_LIST.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              selectedCategory === cat ? "tag-red" : "tag-outline"
+            className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all shadow-lg ${
+              selectedCategory === cat ? "tag-active" : "tag-inactive"
             }`}
           >
             {cat !== "全部" && <span className="mr-1">{CATEGORY_ICONS[cat] || "📦"}</span>}
@@ -119,36 +127,39 @@ export default function HomePage() {
 
       {/* 商品网格 */}
       {filteredProducts.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20">
           <div className="text-6xl mb-4">🛒</div>
-          <p>暂无商品</p>
-          <p className="text-sm mt-1">请联系管理员添加</p>
+          <p className="text-white/70 text-lg">暂无商品</p>
+          <p className="text-white/50 text-sm mt-1">请联系管理员添加</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredProducts.map((product) => (
-            <div key={product.id} className="card-white overflow-hidden">
-              <div className="h-32 bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center text-5xl relative">
+            <div key={product.id} className="card-white-hover">
+              <div className="h-36 bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 flex items-center justify-center text-5xl relative rounded-t-xl">
                 {product.image || CATEGORY_ICONS[product.category] || "📦"}
                 {product.stock <= 0 && (
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs">已售罄</span>
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-t-xl">
+                    <span className="bg-gray-800 text-white px-3 py-1 rounded-full text-xs">已售罄</span>
                   </div>
                 )}
               </div>
-              <div className="p-3">
-                <h3 className="font-medium text-sm text-gray-900 truncate">{product.name}</h3>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-purple-600 font-bold">¥{product.price.toFixed(2)}</span>
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+                <div className="flex items-center justify-between mt-3">
+                  <span className="text-purple-600 font-bold text-lg">¥{product.price.toFixed(2)}</span>
                   <button
                     onClick={() => addToCart(product)}
                     disabled={product.stock <= 0}
-                    className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm hover:bg-purple-700 disabled:bg-gray-300"
+                    className="bg-purple-600 text-white w-9 h-9 rounded-full flex items-center justify-center text-lg hover:bg-purple-700 disabled:bg-gray-300 transition-colors"
                   >
                     ＋
                   </button>
                 </div>
-                <div className="text-xs text-gray-400 mt-1">库存: {product.stock}</div>
+                <div className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                  库存: {product.stock}
+                </div>
               </div>
             </div>
           ))}
@@ -160,10 +171,10 @@ export default function HomePage() {
         <div className="fixed bottom-20 right-4 z-40">
           <button
             onClick={() => setShowCart(true)}
-            className="w-14 h-14 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg relative"
+            className="w-14 h-14 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-600/30 relative animate-bounce"
           >
             <span className="text-xl">🛒</span>
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 text-white text-xs rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
               {cart.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
           </button>
@@ -175,21 +186,21 @@ export default function HomePage() {
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
           <div className="bg-white w-full max-w-md rounded-t-2xl p-6 max-h-[70vh] overflow-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">购物车</h2>
+              <h2 className="text-lg font-bold">🛒 购物车</h2>
               <button onClick={() => setShowCart(false)} className="text-gray-400">✕</button>
             </div>
             <div className="space-y-3">
               {cart.map((item) => (
-                <div key={item.product.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div key={item.product.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <div className="text-3xl">{item.product.image || "📦"}</div>
                   <div className="flex-1">
                     <p className="font-medium">{item.product.name}</p>
                     <p className="text-sm text-gray-400">¥{item.product.price.toFixed(2)}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center">−</button>
-                    <span className="w-6 text-center">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center">+</button>
+                    <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">−</button>
+                    <span className="w-6 text-center font-medium">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">+</button>
                   </div>
                 </div>
               ))}
@@ -197,9 +208,9 @@ export default function HomePage() {
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-600">合计</span>
-                <span className="text-xl font-bold text-purple-600">¥{totalAmount.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-purple-600">¥{totalAmount.toFixed(2)}</span>
               </div>
-              <button onClick={handlePayment} className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700">立即支付</button>
+              <button onClick={handlePayment} className="w-full btn-primary py-3 text-lg">💳 立即支付</button>
             </div>
           </div>
         </div>
@@ -213,11 +224,13 @@ export default function HomePage() {
               <div>
                 <div className="text-5xl mb-4">✅</div>
                 <h2 className="text-lg font-bold text-green-600">支付成功!</h2>
+                <p className="text-gray-400 mt-2">感谢您的购买</p>
               </div>
             ) : (
               <div>
                 <div className="text-5xl mb-4">💳</div>
-                <h2 className="text-lg font-bold">处理中...</h2>
+                <h2 className="text-lg font-bold">正在处理支付...</h2>
+                <p className="text-gray-400 mt-2">请稍候</p>
               </div>
             )}
           </div>
