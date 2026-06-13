@@ -1,3 +1,5 @@
+import './globals.css'
+
 export const metadata = {
   title: '智能贩卖机',
   description: '智能贩卖机系统',
