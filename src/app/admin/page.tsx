@@ -36,8 +36,18 @@ export default function AdminPage() {
 
   const restockProduct = async (product: Product, amount: number) => {
     const newStock = product.stock + amount;
-    await supabase.from("products").update({ stock: newStock }).eq("id", product.id);
-    await supabase.from("admin_logs").insert({ action: "补货", product_id: product.id, product_name: product.name, details: `补货 ${amount} 件` });
+    const { error: updateError } = await supabase.from("products").update({ stock: newStock }).eq("id", product.id);
+    if (updateError) {
+      alert("补货失败: " + updateError.message);
+      return;
+    }
+    // 如果 admin_logs 表存在，记录日志；否则忽略
+    try {
+      await supabase.from("admin_logs").insert({ action: "补货", product_id: product.id, product_name: product.name, details: `补货 ${amount} 件` });
+    } catch (e) {
+      console.log("日志记录失败:", e);
+    }
+    alert(`成功补货 ${amount} 件！当前库存: ${newStock}`);
     loadProducts();
   };
 
