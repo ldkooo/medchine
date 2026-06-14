@@ -1,24 +1,16 @@
--- 14种默认商品 - 在Supabase SQL Editor中执行
-
+-- 插入所有商品数据（包含图片URL）
 INSERT INTO products (name, price, stock, category, image, status) VALUES
--- 饮料 (4种)
-('可乐', 3.50, 100, '饮料', '🥤', 'active'),
-('雪碧', 3.50, 100, '饮料', '🧃', 'active'),
-('橙汁', 4.00, 80, '饮料', '🍊', 'active'),
-('矿泉水', 2.00, 150, '饮料', '💧', 'active'),
-
--- 零食 (4种)
-('薯片', 5.00, 50, '零食', '🍿', 'active'),
-('巧克力', 6.00, 40, '零食', '🍫', 'active'),
-('饼干', 4.00, 60, '零食', '🍪', 'active'),
-('果冻', 3.00, 70, '零食', '🍮', 'active'),
-
--- 冰激凌 (3种)
-('香草冰淇淋', 6.00, 30, '冰激凌', '🍦', 'active'),
-('草莓冰淇淋', 6.50, 25, '冰激凌', '🍓', 'active'),
-('巧克力甜筒', 5.00, 35, '冰激凌', '🍨', 'active'),
-
--- 方便食品 (3种)
-('泡面', 4.50, 80, '方便食品', '🍜', 'active'),
-('自热火锅', 12.00, 20, '方便食品', '🍲', 'active'),
-('八宝粥', 5.00, 45, '方便食品', '🥣', 'active');
+  ('乐事薯片', 6.50, 20, '零食', 'https://images.unsplash.com/photo-1566478989037-eec784893be2?w=300&h=300&fit=crop', 'active'),
+  ('橙汁', 5.00, 20, '饮料', 'https://images.unsplash.com/photo-1613478223719-2b802b91911d?w=300&h=300&fit=crop', 'active'),
+  ('娃哈哈矿泉水', 2.00, 20, '饮料', 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&h=300&fit=crop', 'active'),
+  ('德芙巧克力', 8.50, 20, '零食', 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=300&h=300&fit=crop', 'active'),
+  ('喜之郎果冻', 4.00, 20, '零食', 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=300&h=300&fit=crop', 'active'),
+  ('明治香草冰淇淋', 12.00, 20, '冰激凌', 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=300&h=300&fit=crop', 'active'),
+  ('草莓冰淇淋', 10.00, 20, '冰激凌', 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=300&h=300&fit=crop', 'active'),
+  ('巧克力甜筒', 8.00, 20, '冰激凌', 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&h=300&fit=crop', 'active'),
+  ('泡面', 5.50, 20, '方便食品', 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=300&fit=crop', 'active'),
+  ('自热火锅', 18.00, 20, '方便食品', 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop', 'active'),
+  ('八宝粥', 6.00, 20, '方便食品', 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=300&fit=crop', 'active'),
+  ('雪碧', 3.50, 20, '饮料', 'https://images.unsplash.com/photo-1621506821957-1b50ab7787a4?w=300&h=300&fit=crop', 'active'),
+  ('可乐', 3.50, 20, '饮料', 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&h=300&fit=crop', 'active'),
+  ('饼干', 4.50, 20, '零食', 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=300&h=300&fit=crop', 'active');
