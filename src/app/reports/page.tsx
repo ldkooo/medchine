@@ -2,175 +2,130 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Sale, DailySale } from "@/types";
+import { Sale } from "@/types";
 
 export default function ReportsPage() {
   const [sales, setSales] = useState<Sale[]>([]);
-  const [dailyStats, setDailyStats] = useState<DailySale[]>([]);
-  const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(true);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [totalSales, setTotalSales] = useState(0);
+  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
-    loadData();
+    loadSales();
   }, []);
 
-  const loadData = async () => {
+  const loadSales = async () => {
     setLoading(true);
-    const { data: salesData } = await supabase
+    const { data } = await supabase
       .from("sales")
       .select("*")
       .order("sale_date", { ascending: false });
-    if (salesData) {
-      setSales(salesData);
-      setTotalRevenue(salesData.reduce((sum, s) => sum + s.total, 0));
-      setTotalSales(salesData.reduce((sum, s) => sum + s.quantity, 0));
-    }
-    const { data: statsData } = await supabase
-      .from("daily_sales")
-      .select("*")
-      .limit(100);
-    if (statsData) setDailyStats(statsData);
+    setSales(data || []);
     setLoading(false);
   };
 
-  const filteredSales = dateFilter
-    ? sales.filter((s) => s.sale_date_str === dateFilter)
-    : sales;
-  const filteredStats = dateFilter
-    ? dailyStats.filter((s) => s.sale_date_str === dateFilter)
-    : dailyStats;
+  // 获取所有日期（去重，倒序）
+  const dates = [...new Set(sales.map((s) => s.sale_date_str))].sort().reverse();
 
-  const groupedByDate = filteredStats.reduce((acc, stat) => {
-    if (!acc[stat.sale_date_str]) acc[stat.sale_date_str] = [];
-    acc[stat.sale_date_str].push(stat);
+  // 按日期分组
+  const groupedByDate = dates.reduce((acc, date) => {
+    acc[date] = sales.filter((s) => s.sale_date_str === date);
     return acc;
-  }, {} as Record<string, DailySale[]>);
+  }, {} as Record<string, Sale[]>);
 
-  const dates = Object.keys(groupedByDate).sort().reverse();
+  // 筛选某一天
+  const displayDates = selectedDate ? [selectedDate] : dates;
 
   if (loading) return <div className="text-center py-20">加载中...</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold">📊 数据报表</h1>
+        <h1 className="text-xl font-bold">📊 每日消费记录</h1>
         <div className="flex items-center gap-2">
           <input
             type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="text-sm"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="text-sm bg-white/80 rounded-lg px-2 py-1"
           />
-          {dateFilter && (
+          {selectedDate && (
             <button
-              onClick={() => setDateFilter("")}
-              className="text-sm text-red-600"
+              onClick={() => setSelectedDate("")}
+              className="text-sm text-red-600 bg-white/80 rounded-lg px-2 py-1"
             >
-              清除
+              全部
             </button>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white p-4 rounded-xl shadow-sm text-center">
-          <div className="text-sm text-gray-400">总销售额</div>
+      {/* 汇总卡片 */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-sm text-center">
+          <div className="text-sm text-gray-400">总消费</div>
           <div className="text-2xl font-bold text-red-600">
-            ¥{totalRevenue.toFixed(2)}
+            ¥{sales.reduce((sum, s) => sum + s.total, 0).toFixed(2)}
           </div>
         </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm text-center">
-          <div className="text-sm text-gray-400">总销量</div>
-          <div className="text-2xl font-bold text-red-600">{totalSales}</div>
-        </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm text-center">
-          <div className="text-sm text-gray-400">订单数</div>
+        <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-sm text-center">
+          <div className="text-sm text-gray-400">总购买</div>
           <div className="text-2xl font-bold text-red-600">
-            {sales.length}
+            {sales.reduce((sum, s) => sum + s.quantity, 0)} 件
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b">
-          <h2 className="font-bold">每日销售</h2>
+      {/* 按日期显示消费记录 */}
+      {displayDates.length === 0 ? (
+        <div className="text-center py-20 text-gray-400">
+          <div className="text-5xl mb-4">📊</div>
+          <p>暂无消费记录</p>
         </div>
-        {dates.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">暂无数据</div>
-        ) : (
-          <div className="divide-y">
-            {dates.map((date) => {
-              const dayStats = groupedByDate[date];
-              const dayTotal = dayStats.reduce(
-                (sum, s) => sum + s.total_revenue,
-                0
-              );
-              const dayQty = dayStats.reduce(
-                (sum, s) => sum + s.total_quantity,
-                0
-              );
-              return (
-                <div key={date} className="p-4">
-                  <div className="flex justify-between mb-3">
-                    <span className="font-bold">{date}</span>
-                    <span className="text-sm text-gray-500">
-                      {dayQty}件 ¥{dayTotal.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {dayStats.map((stat) => (
-                      <div
-                        key={stat.product_id}
-                        className="bg-gray-50 rounded-lg p-3 flex justify-between"
-                      >
-                        <span className="text-sm">{stat.product_name}</span>
-                        <span className="text-sm font-medium text-red-600">
-                          {stat.total_quantity}件
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+      ) : (
+        <div className="space-y-4">
+          {displayDates.map((date) => {
+            const daySales = groupedByDate[date];
+            const dayTotal = daySales.reduce((sum, s) => sum + s.total, 0);
+            const dayQty = daySales.reduce((sum, s) => sum + s.quantity, 0);
+            return (
+              <div key={date} className="bg-white/95 backdrop-blur-md rounded-xl shadow-sm overflow-hidden">
+                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b flex justify-between items-center">
+                  <span className="font-bold text-lg">📅 {date}</span>
+                  <span className="text-sm text-gray-500">
+                    共 {dayQty} 件 · ¥{dayTotal.toFixed(2)}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b">
-          <h2 className="font-bold">最近记录</h2>
+                <div className="divide-y">
+                  {daySales.map((sale) => (
+                    <div key={sale.id} className="p-4 flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-lg">
+                          🛒
+                        </div>
+                        <div>
+                          <p className="font-medium">{sale.product_name}</p>
+                          <p className="text-sm text-gray-400">
+                            {new Date(sale.sale_date).toLocaleTimeString("zh-CN", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-red-600">
+                          ¥{sale.total.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-gray-400">x{sale.quantity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-3 py-2 text-left">时间</th>
-              <th className="px-3 py-2">商品</th>
-              <th className="px-3 py-2 text-right">金额</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {filteredSales.slice(0, 20).map((sale) => (
-              <tr key={sale.id}>
-                <td className="px-3 py-2 text-gray-400">
-                  {new Date(sale.sale_date).toLocaleString("zh-CN", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </td>
-                <td className="px-3 py-2">{sale.product_name}</td>
-                <td className="px-3 py-2 text-right font-medium text-red-600">
-                  ¥{sale.total.toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      )}
     </div>
   );
 }

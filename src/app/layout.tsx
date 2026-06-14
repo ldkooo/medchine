@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center justify-around h-14">
               <NavItem href="/" icon="🏠" label="首页" />
-              <NavItem href="/" icon="📋" label="分类" />
+              <NavItem href="/reports" icon="📊" label="报表" />
               <NavItem href="/orders" icon="📦" label="订单" />
               <NavItem href="/admin" icon="👤" label="我的" />
             </div>
