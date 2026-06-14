@@ -24,7 +24,7 @@ export default function ReportsPage() {
   };
 
   // 获取所有日期（去重，倒序）
-  const dates = [...new Set(sales.map((s) => s.sale_date_str))].sort().reverse();
+  const dates = Array.from(new Set(sales.map((s) => s.sale_date_str))).sort().reverse();
 
   // 按日期分组
   const groupedByDate = dates.reduce((acc, date) => {
